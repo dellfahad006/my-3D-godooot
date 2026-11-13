@@ -1,0 +1,29 @@
+name: Export Godot 3.3 to HTML5
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 3.3.4
+
+jobs:
+  export-web:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:3.3.4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        run: |
+          mkdir -v -p ~/.local/share/godot/templates
+          mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+      - name: Web Build
+        run: |
+          mkdir -v -p build/web
+          godot -v --export "HTML5" build/web/index.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web
