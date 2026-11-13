@@ -230,18 +230,6 @@ shadow_contact = 0.56
 [node name="Checkpoint" parent="." instance=ExtResource( 10 )]
 transform = Transform( 0.00442082, 0, 0.99999, 0, 1, 0, -0.99999, 0, 0.00442082, 24.8696, 0.636365, 17.466 )
 
-[node name="stage_sign_split" parent="Checkpoint/stage_sign_split_rb" index="0"]
-visible = false
-
-[node name="stage_sign_finish" parent="Checkpoint/stage_sign_split_rb" index="2"]
-visible = true
-
-[node name="stage_sign_split" parent="Checkpoint/stage_sign_split_rb2" index="0"]
-visible = false
-
-[node name="stage_sign_finish" parent="Checkpoint/stage_sign_split_rb2" index="2"]
-visible = true
-
 [node name="Checkpoint3" parent="." instance=ExtResource( 10 )]
 transform = Transform( 0.00442082, 0, 0.99999, 0, 1, 0, -0.99999, 0, 0.00442082, 1.52562, 0.518541, -27.3525 )
 
@@ -367,7 +355,3 @@ environment = ExtResource( 18 )
 [connection signal="body_entered" from="Checkpoint12" to="car_controller" method="BodyEntered" binds= [ 10 ]]
 [connection signal="body_entered" from="Checkpoint13" to="car_controller" method="BodyEntered" binds= [ 11 ]]
 [connection signal="body_entered" from="Checkpoint14" to="car_controller" method="BodyEntered" binds= [ 12 ]]
-
-[editable path="Checkpoint"]
-[editable path="Checkpoint/stage_sign_split_rb"]
-[editable path="Checkpoint/stage_sign_split_rb2"]
