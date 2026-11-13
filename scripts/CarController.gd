@@ -52,6 +52,12 @@ var blue = Color(0, 0, 1, 1)
 var darkGreen = Color(0, 0.9, 0, 1)
 var black = Color(0, 0, 0, 1)
 
+var ghost = null
+var ghostIdx = 0
+var recTimes = []
+var recXf = []
+var recSkip = 0
+
 var drawParticles = true
 var drawLines = false
 var debugSplits = false
@@ -61,6 +67,54 @@ func _descendants(n, out):
 		out.append(c)
 		_descendants(c, out)
 	return out
+
+func _make_ghost():
+	var inst = load("res://car.tscn").instance()
+	var root = Spatial.new()
+	root.add_child(inst)
+	inst.translation = Vector3(-0.000513, -0.546232, 0.00111961)  # same offset as the real car model
+	var m = SpatialMaterial.new()
+	m.flags_transparent = true
+	m.flags_unshaded = true
+	m.albedo_color = Color(0.45, 0.75, 1.0, 0.35)
+	var body_inst = inst.get_node_or_null("RootNode/car")
+	if body_inst != null:
+		for n in _descendants(body_inst, []):
+			if n is MeshInstance and n.name != "car_body":
+				n.visible = false
+	for n in _descendants(inst, []):
+		if n is MeshInstance:
+			n.cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_OFF
+			n.material_override = m
+	root.visible = false
+	ghost = root
+	get_parent().call_deferred("add_child", root)
+
+func _record_ghost():
+	if stageTime >= 0.0 and not stageEnded:
+		recSkip += 1
+		if recSkip % 2 == 0:  # 60 samples/sec is plenty; ghost is interpolated
+			recTimes.append(stageTime)
+			recXf.append(global_transform)
+
+func _update_ghost():
+	if ghost == null or not ghost.is_inside_tree():
+		return
+	var n = Persist.ghostTimes.size()
+	if n == 0:
+		ghost.visible = false
+		return
+	ghost.visible = true
+	if n == 1:
+		ghost.global_transform = Persist.ghostXf[0]
+		return
+	var t = max(stageTime, 0.0)
+	while ghostIdx < n - 2 and Persist.ghostTimes[ghostIdx + 1] <= t:
+		ghostIdx += 1
+	var t0 = Persist.ghostTimes[ghostIdx]
+	var t1 = Persist.ghostTimes[ghostIdx + 1]
+	var w = clamp((t - t0) / max(t1 - t0, 0.0001), 0.0, 1.0)
+	ghost.global_transform = Persist.ghostXf[ghostIdx].interpolate_with(Persist.ghostXf[ghostIdx + 1], w)
 
 func race_started():
 	return stageTime > 0.0
@@ -110,6 +164,7 @@ func _ready():
 		debugSplits = float(str(config.get_value("debug", "splits", 0))) != 0.0
 	else:
 		print("Couldn't load config.ini")
+	_make_ghost()
 
 func get_velocity_at_point(point):
 	return linear_velocity + angular_velocity.cross(point - global_transform.origin)
@@ -129,6 +184,8 @@ func _physics_process(dt):
 	if not stageEnded:
 		stageTime = now - sceneStartTime - countdown
 	var cd = int(-stageTime) + 1
+	_record_ghost()
+	_update_ghost()
 
 	# ---- timing text ----
 	timingText.clear()
@@ -282,6 +339,10 @@ func _end():
 	finishSound.play(0.0)
 	if Persist.bestTime == 0.0 or stageTime < Persist.bestTime:
 		Persist.bestTime = stageTime
+		recTimes.append(stageTime)
+		recXf.append(global_transform)
+		Persist.ghostTimes = recTimes
+		Persist.ghostXf = recXf
 		for i in range(CHECKPOINT_NUM):
 			prevBestCheckpointTimes[i] = Persist.bestCheckpointTimes[i]
 			Persist.bestCheckpointTimes[i] = checkpointTimes[i]

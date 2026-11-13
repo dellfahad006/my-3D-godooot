@@ -5,11 +5,12 @@ export(NodePath) var wingmanCameraPath
 
 var hoodCamera
 var wingmanCamera
-var hoodCameraIsActive = false
+var hoodCameraIsActive = true
 
 func _ready():
 	wingmanCamera = get_node(wingmanCameraPath)
 	hoodCamera = get_node(hoodCameraPath)
+	hoodCamera.make_current()  # hood camera is the default; C toggles to the chase camera
 	# The restored track.glb carries its collider in a glTF physics extension that
 	# Godot 3.3 ignores, so build the collider from the road mesh here.
 	var road_mat = load("res://track/dirtroad.material")

@@ -3,6 +3,8 @@ extends Node
 
 var bestTime = 0.0
 var bestCheckpointTimes = []
+var ghostTimes = []   # PB run: timestamps
+var ghostXf = []      # PB run: car transforms
 
 func _ready():
 	for i in range(13):
