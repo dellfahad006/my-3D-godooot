@@ -15,10 +15,17 @@ jobs:
       image: barichello/godot-ci:3.3.4
     steps:
       - uses: actions/checkout@v4
+      
       - name: Setup
         run: |
           mkdir -v -p ~/.local/share/godot/templates
           mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+          
+      # NEW STEP: Install Python
+      - name: Install Python
+        run: |
+          apt-get update
+          apt-get install -y python3
           
       - name: Web Build
         run: |
