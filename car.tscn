@@ -165,7 +165,7 @@ material/5 = null
 material_override = ExtResource( 1 )
 material/0 = ExtResource( 1 )
 
-[node name="car" parent="RootNode/car" index="1"]
+[node name="car2" parent="RootNode/car" index="1"]
 visible = false
 
 [editable path="RootNode/car"]
