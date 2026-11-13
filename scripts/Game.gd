@@ -14,6 +14,16 @@ func _ready():
 	# Godot 3.3 ignores, so build the collider from the road mesh here.
 	var road_mat = load("res://track/dirtroad.material")
 	_setup_track(get_node("../track"), road_mat)
+	# Checkpoint 0 is the start/finish line: show the "finish" sign, hide the "split" sign.
+	var cp = get_node_or_null("../Checkpoint")
+	if cp != null:
+		for nm in ["stage_sign_split_rb", "stage_sign_split_rb2"]:
+			var rb = cp.get_node_or_null(nm)
+			if rb != null:
+				var a = rb.get_node_or_null("stage_sign_split")
+				var b = rb.get_node_or_null("stage_sign_finish")
+				if a != null: a.visible = false
+				if b != null: b.visible = true
 
 func _setup_track(n, road_mat):
 	for c in n.get_children():

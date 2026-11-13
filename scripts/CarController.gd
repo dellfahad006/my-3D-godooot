@@ -56,6 +56,12 @@ var drawParticles = true
 var drawLines = false
 var debugSplits = false
 
+func _descendants(n, out):
+	for c in n.get_children():
+		out.append(c)
+		_descendants(c, out)
+	return out
+
 func race_started():
 	return stageTime > 0.0
 
@@ -81,7 +87,15 @@ func _ready():
 	checkpointSound = get_node(checkpointSoundPath)
 	countdownSound = get_node(countdownSoundPath)
 	finishSound = get_node(finishSoundPath)
-	get_node(bodyNode).material_override = material
+	# Body mesh / hidden helper node are set up here (not via scene overrides),
+	# so it works regardless of how the imported model names its nodes.
+	for n in _descendants(get_node("car/RootNode/car"), []):
+		if n is MeshInstance:
+			if n.name == "car_body":
+				n.material_override = material
+				n.visible = true
+			else:
+				n.visible = false
 	for w in wheels:
 		w["dirt"].emitting = false
 
